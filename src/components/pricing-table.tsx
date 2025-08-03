@@ -1,6 +1,52 @@
-// src/components/PricingTable.tsx
 "use client";
 import React from "react";
+
+// --- Type Definitions for Razorpay SDK ---
+
+/**
+ * Defines the structure of the response object from the Razorpay handler.
+ */
+interface RazorpayHandlerResponse {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
+  razorpay_signature: string;
+}
+
+/**
+ * Defines the options for creating a new Razorpay instance.
+ */
+interface RazorpayOptions {
+  key: string;
+  subscription_id: string;
+  name: string;
+  description: string;
+  theme: {
+    color: string;
+  };
+  handler: (response: RazorpayHandlerResponse) => void;
+}
+
+/**
+ * Defines the structure of a Razorpay instance.
+ */
+interface RazorpayInstance {
+  open(): void;
+}
+
+/**
+ * Defines the constructor for the Razorpay class.
+ */
+interface RazorpayConstructor {
+  new (options: RazorpayOptions): RazorpayInstance;
+}
+
+// --- Extend the global Window interface to include Razorpay ---
+declare global {
+  interface Window {
+    Razorpay?: RazorpayConstructor;
+  }
+}
+
 
 const plans = [
   {
@@ -38,15 +84,18 @@ export const PricingTable = () => {
     const data = await res.json();
 
     if (data.error) return alert("Failed to subscribe: " + data.error);
-    if (!(window as any).Razorpay) return alert("Razorpay SDK not loaded.");
+    // CORRECTED: Check window.Razorpay directly without using 'any'.
+    if (!window.Razorpay) return alert("Razorpay SDK not loaded.");
 
-    const razorpay = new (window as any).Razorpay({
+    // CORRECTED: Use the defined types for Razorpay options.
+    const razorpay = new window.Razorpay({
       key: data.key,
       subscription_id: data.subscriptionId,
       name: "CodeNebula",
       description: "Plan Subscription",
       theme: { color: "#6366f1" },
-      handler: (response: any) => {
+      // CORRECTED: Use the specific RazorpayHandlerResponse type.
+      handler: (response: RazorpayHandlerResponse) => {
         alert("Subscribed successfully!");
         console.log(response);
       },

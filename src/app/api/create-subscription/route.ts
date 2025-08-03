@@ -6,6 +6,32 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
 
+/**
+ * Defines the structure for a Razorpay API error.
+ */
+interface RazorpayError {
+  error: {
+    description: string;
+  };
+}
+
+/**
+ * Type guard to check if an error is a RazorpayError.
+ * @param error The error to check.
+ * @returns True if the error is a RazorpayError, false otherwise.
+ */
+function isRazorpayError(error: unknown): error is RazorpayError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "error" in error &&
+    typeof (error as { error: unknown }).error === "object" &&
+    (error as { error: object })?.error !== null &&
+    "description" in (error as { error: object }).error
+  );
+}
+
+
 export async function POST(req: NextRequest) {
   try {
     const { planId } = await req.json();
@@ -15,16 +41,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("📦 Received planId:", planId);
-
-    // Log available plans (DEBUG ONLY)
-    const plans = await razorpay.plans.all({ count: 10 });
-    console.log("🧪 Available plans on Razorpay:", plans.items.map((p) => ({
-      id: p.id,
-      name: p.item.name,
-      amount: p.item.amount,
-      currency: p.item.currency,
-      interval: p.period,
-    })));
 
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
@@ -37,10 +53,20 @@ export async function POST(req: NextRequest) {
       subscriptionId: subscription.id,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) { // CORRECTED: Catch error as 'unknown' for type safety.
     console.error("🔴 Razorpay subscription error:", JSON.stringify(error, null, 2));
+
+    let errorMessage = "Something went wrong";
+
+    // CORRECTED: Type-safe error message extraction.
+    if (isRazorpayError(error)) {
+      errorMessage = error.error.description;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     return NextResponse.json(
-      { error: error?.error?.description || error.message || "Something went wrong" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

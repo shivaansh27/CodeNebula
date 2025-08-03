@@ -1,6 +1,5 @@
 import { TreeItem } from "@/types";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarProvider, SidebarRail } from "./ui/sidebar";
-import { getDefaultClassNames } from "react-day-picker";
 import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react";
 import { CollapsibleTrigger, Collapsible } from "./ui/collapsible";
 import { CollapsibleContent } from "@radix-ui/react-collapsible";

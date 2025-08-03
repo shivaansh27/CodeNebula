@@ -2,9 +2,7 @@ import { inngest } from "@/inngest/client";
 import prisma from "@/lib/db";
 import { consumeCredits } from "@/lib/usage";
 import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
-import { auth } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
-import { error } from "console";
 import { z } from "zod";
 
 export const messagesRouter = createTRPCRouter({

@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { ChevronRightIcon, Code2Icon } from "lucide-react";
 import Image from "next/image";
 interface UserMessageProps{
-    content: String;
+    content: string;
 }
 const UserMessage = ({content}: UserMessageProps) =>{
     return(
@@ -47,7 +47,7 @@ const FragmentCard = ({
 }
 
 interface AssistantMessageProps{
-    content: String;
+    content: string;
     fragment : Fragment | null;
     createdAt : Date;
     isActiveFragment : boolean;
@@ -97,7 +97,7 @@ const AssistantMessage = ({
     )
 }
 interface MessageCardProps{
-    content: String;
+    content: string;
     role: MessageRole;
     fragment: Fragment | null;
     createdAt: Date;

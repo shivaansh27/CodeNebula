@@ -5,7 +5,6 @@ import { formatDistanceToNow } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
-import { Project } from "@/generated/prisma";
 import { useUser } from "@clerk/nextjs";
 
 export const ProjectList = () =>{
