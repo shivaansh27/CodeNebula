@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ✨ CodeNebula
 
-## Getting Started
+**CodeNebula** is an AI-powered frontend page builder that transforms natural language prompts into fully functional web pages. Leveraging the latest in generative AI, **CodeNebula** empowers developers, designers, and entrepreneurs to build beautiful, production-ready pages without writing a single line of code.
 
-First, run the development server:
+---
+
+## ⚡ What It Does
+
+Just type a prompt like _"Create a landing page for a fitness app with pricing plans"_ — and CodeNebula will generate a complete, styled, and componentized frontend page using modern technologies.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend Framework**: Next.js
+- **Styling**: Tailwind CSS
+- **AI Engine**: OpenAI GPT-4o
+- **Authentication**: Clerk
+- **API Communication**: tRPC
+- **Workflow Orchestration**: Inngest
+- **Code Execution Sandbox**: E2B Sandbox
+- **Payments**: Razorpay
+
+---
+
+## ✅ Prerequisites
+
+Make sure you have the following installed:
+
+- **Node.js** (v14 or higher recommended)
+- **npm** (Node Package Manager)
+
+---
+
+## 📦 Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/shivaansh27/CodeNebula
+```
+
+### 2. Navigate to the Project Directory
+```bash
+cd codenebula
+```
+
+### 3. Install Dependencies
+```bash
+npm install
+```
+
+---
+
+## ▶️ Running the Project
+
+To start the development server, run:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app in action.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Features
 
-## Learn More
+- 🧠 Prompt-to-Page generation using GPT-4o
+- 🎨 Fully responsive Tailwind CSS layouts
+- 🔐 Seamless authentication with Clerk
+- ⚙️ Type-safe APIs with tRPC
+- 🧪 Sandboxed code execution using E2B
+- 📦 Background tasks and workflows powered by Inngest
+- 💳 Integrated payments with Razorpay
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🌱 Roadmap
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Multi-page project support
+- Downloadable Code
+- Component editing and refinement
+- AI chat assistant for page improvements
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👤 Author
+
+- **Shivansh Sharma** – [GitHub](https://github.com/shivaansh27) | [LinkedIn](https://www.linkedin.com/in/shivanshsharma27)
+
+---
