@@ -8,17 +8,22 @@ import prisma from "@/lib/db";
 
 interface AgentState {
   summary: string;
-  files: { [path: string]: string };
-};
+  files: Record<string, string>;
+}
 
 export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
   { event: "code-agent/run" },
   async ({ event, step }) => {
     const sandboxId = await step.run("get-sandbox-id", async () => {
-      const sandbox = await Sandbox.create("codenebula");
-      await sandbox.setTimeout(60_000 * 10 * 3);
-      return sandbox.sandboxId;
+      try {
+        const sandbox = await Sandbox.create("codenebula");
+        await sandbox.setTimeout(60_000 * 10 * 3);
+        return sandbox.sandboxId;
+      } catch (error) {
+        console.error("Failed to create sandbox:", error);
+        throw error;
+      }
     })
 
     const previousMessages = await step.run("get-previous-messages", async () => {
@@ -55,7 +60,7 @@ export const codeAgentFunction = inngest.createFunction(
       description: "An coding agent expert in its field",
       system: PROMPT,
       model: openai({
-        model: "gpt-4.1",
+        model: "gpt-4",
         defaultParameters: {
           temperature: 0.1,
         }
@@ -102,13 +107,14 @@ export const codeAgentFunction = inngest.createFunction(
               }),
             ),
           }),
-          // CORRECTED: Removed explicit `: Tool.Options<AgentState>` to break the type loop.
           handler: async (
-            { files }, { step, network }
+            { files }, 
+            context
           ) => {
+            const { step, network } = context;
             const newFiles = await step?.run("createOrUpdatefiles", async () => {
               try {
-                const updatedFiles = network.state.data.files || {};
+                const updatedFiles = { ...network.state.data.files } || {};
                 const sandbox = await getSandbox(sandboxId);
                 for (const file of files) {
                   await sandbox.files.write(file.path, file.content);
@@ -121,7 +127,7 @@ export const codeAgentFunction = inngest.createFunction(
               }
             });
 
-            if (typeof newFiles === "object") {
+            if (typeof newFiles === "object" && newFiles && typeof newFiles !== "string") {
               network.state.data.files = newFiles;
             }
           }
