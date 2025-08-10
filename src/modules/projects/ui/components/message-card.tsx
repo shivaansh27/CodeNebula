@@ -18,9 +18,9 @@ const UserMessage = ({content}: UserMessageProps) =>{
     )
 }
 interface FragmentCardProps{
-    fragment : Fragment | null;
-     isActiveFragment : boolean;
-       onFragmentClick: (fragment: Fragment) => void;
+    fragment: Fragment;
+    isActiveFragment: boolean;
+    onFragmentClick: (fragment: Fragment) => void;
 }
 const FragmentCard = ({
     fragment,
@@ -32,7 +32,7 @@ const FragmentCard = ({
             "flex items-start text-start gap-2 border rounded-lg bg-muted w-fit p-3 hover:bg-secondary transition-colors ",
             isActiveFragment && "bg-primary text-primary-foreground border-primary hover:bg-primary"
         )}
-        onClick={() => onFragmentClick(fragment)}
+    onClick={() => onFragmentClick(fragment)}
         >
             <Code2Icon className="size-4 mt-0.5 " />
             <div className="flex flex-col flex-1">
@@ -66,7 +66,7 @@ const AssistantMessage = ({
     return(
         <div className={cn(
             "flex flex-col group px-2 pb-4",
-            type==="Error" && "text-red-700 dark:text-red-500",
+            type === MessageType.ERROR && "text-red-700 dark:text-red-500",
         )}>
             <div className="flex items-center gap-2 pl-2 mb-2">
                 <Image
@@ -85,7 +85,7 @@ const AssistantMessage = ({
                 <span>
                     {content}
                 </span>
-                {fragment && type === "RESULT" && (
+                {fragment && type === MessageType.RESULT && (
                     <FragmentCard 
                         fragment = {fragment}
                         isActiveFragment = {isActiveFragment}
