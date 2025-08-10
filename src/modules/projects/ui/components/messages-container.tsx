@@ -24,8 +24,9 @@ export const MessagesContainer = ({projectId,activeFragment,setActiveFragment }:
             (message) => message.role==="ASSISTANT"
         );
 
-        if(lastAssistantMessage?.fragment && lastAssistantMessage.id!=addLastAssistantMessageIdRef.current){
-                setActiveFragment(lastAssistantMessage.fragment);
+    if(lastAssistantMessage?.fragment && lastAssistantMessage.id!=addLastAssistantMessageIdRef.current){
+        // The TRPC client may widen nested relation types; assert to Prisma Fragment for local state.
+        setActiveFragment(lastAssistantMessage.fragment as unknown as Fragment);
                 addLastAssistantMessageIdRef.current = lastAssistantMessage.id;
         }
     },[messages,setActiveFragment]);
@@ -48,7 +49,8 @@ export const MessagesContainer = ({projectId,activeFragment,setActiveFragment }:
                         fragment = {message.fragment}
                         createdAt = {message.createdAt}
                         isActiveFragment = {activeFragment?.id === message.fragment?.id}
-                        onFragmentClick = {() => setActiveFragment(message.fragment)}
+                        // Accept the strongly-typed Fragment from MessageCard
+                        onFragmentClick = {(fragment) => setActiveFragment(fragment)}
                         type = {message.type}
                         />
                     ))}
