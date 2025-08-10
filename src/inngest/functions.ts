@@ -27,7 +27,7 @@ export const codeAgentFunction = inngest.createFunction(
       }
     })
 
-    const previousMessages = await step.run("get-previous-messages", async () => {
+  const previousMessages = (await step.run("get-previous-messages", async () => {
       const formattedMessages: Message[] = [];
 
       // Workaround for Vercel TS build where Accelerate makes delegate call signatures a union
@@ -55,7 +55,7 @@ export const codeAgentFunction = inngest.createFunction(
         })
       }
       return formattedMessages.reverse();
-    })
+    })) as unknown as Message[];
 
     const state = createState<AgentState>({
       summary: "",
