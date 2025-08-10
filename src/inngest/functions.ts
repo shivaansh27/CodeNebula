@@ -30,7 +30,15 @@ export const codeAgentFunction = inngest.createFunction(
     const previousMessages = await step.run("get-previous-messages", async () => {
       const formattedMessages: Message[] = [];
 
-      const messages = await prisma.message.findMany({
+      // Workaround for Vercel TS build where Accelerate makes delegate call signatures a union
+      type MessageFindManyArgs = {
+        where?: { projectId?: string };
+        orderBy?: { createdAt?: "asc" | "desc" };
+        take?: number;
+      };
+      type MessageDelegate = { findMany: (args?: MessageFindManyArgs) => Promise<Array<{ id: string; content: string; role: string }>> };
+      const messageDelegate = (prisma as unknown as { message: MessageDelegate }).message;
+  const messages = await messageDelegate.findMany({
         where: {
           projectId: event.data.projectId,
         },
