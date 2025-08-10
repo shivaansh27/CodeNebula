@@ -5,6 +5,7 @@ import { getSandbox, lastAssistantTextMessageContent } from "./utils";
 import { PROMPT, FRAGMENT_TITLE_PROMPT, RESPONSE_PROMPT } from "@/prompt";
 import { z } from "zod";
 import prisma from "@/lib/db";
+import type { ZodTypeAny } from "zod";
 
 interface AgentState {
   summary: string;
@@ -55,7 +56,26 @@ export const codeAgentFunction = inngest.createFunction(
       messages: previousMessages,
     })
 
-    const codeAgent = createAgent<AgentState>({
+    // Predefine schemas to avoid deep generic inference at callsites
+    const terminalParamsSchema: ZodTypeAny = z.object({
+      command: z.string(),
+    });
+    const createOrUpdateFilesParamsSchema: ZodTypeAny = z.object({
+      files: z.array(
+        z.object({
+          path: z.string(),
+          content: z.string(),
+        })
+      ),
+    });
+    const readFilesParamsSchema: ZodTypeAny = z.object({
+      files: z.array(z.string()),
+    });
+
+  // Create a wrapper to avoid deep generic instantiation at callsites
+  const createToolLoose = createTool as unknown as (arg: unknown) => ReturnType<typeof createTool>;
+
+  const codeAgent = createAgent<AgentState>({
       name: "codeAgent",
       description: "An coding agent expert in its field",
       system: PROMPT,
@@ -66,13 +86,15 @@ export const codeAgentFunction = inngest.createFunction(
         }
       }),
       tools: [
-        createTool({
+        // Use the loose wrapper to prevent TS deep instantiation
+        createToolLoose({
           name: "terminal",
           description: "Use terminal to run commands",
-          parameters: z.object({
-            command: z.string(),
-          }),
-          handler: async ({ command }, { step }) => {
+          parameters: terminalParamsSchema,
+          handler: async (
+            { command }: { command: string },
+            { step }: { step?: { run: <T>(name: string, fn: () => Promise<T>) => Promise<T> } }
+          ) => {
             return await step?.run("terminal", async () => {
               const buffers = { stdout: "", stderr: "" };
 
@@ -95,26 +117,23 @@ export const codeAgentFunction = inngest.createFunction(
               }
             })
           },
-        }),
-        createTool({
+  }),
+        createToolLoose({
           name: "createOrUpdatefiles",
           description: "create or update files in the sandbox",
-          parameters: z.object({
-            files: z.array(
-              z.object({
-                path: z.string(),
-                content: z.string(),
-              }),
-            ),
-          }),
+          parameters: createOrUpdateFilesParamsSchema,
           handler: async (
-            { files }, 
-            context
+            { files }: { files: Array<{ path: string; content: string }> },
+            context: {
+              step?: { run: <T>(name: string, fn: () => Promise<T>) => Promise<T> },
+              network: { state: { data: { files: Record<string, string> } } }
+            }
           ) => {
             const { step, network } = context;
             const newFiles = await step?.run("createOrUpdatefiles", async () => {
               try {
-                const updatedFiles = { ...network.state.data.files } || {};
+                const baseFiles: Record<string, string> = network.state.data.files ?? {};
+                const updatedFiles = { ...baseFiles };
                 const sandbox = await getSandbox(sandboxId);
                 for (const file of files) {
                   await sandbox.files.write(file.path, file.content);
@@ -132,13 +151,14 @@ export const codeAgentFunction = inngest.createFunction(
             }
           }
         }),
-        createTool({
+        createToolLoose({
           name: "readFiles",
           description: "Read files from the sandbox",
-          parameters: z.object({
-            files: z.array(z.string()),
-          }),
-          handler: async ({ files }, { step }) => {
+          parameters: readFilesParamsSchema,
+          handler: async (
+            { files }: { files: string[] },
+            { step }: { step?: { run: <T>(name: string, fn: () => Promise<T>) => Promise<T> } }
+          ) => {
             return await step?.run("readFiles", async () => {
               try {
                 const sandbox = await getSandbox(sandboxId);
