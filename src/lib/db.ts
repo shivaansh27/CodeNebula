@@ -1,11 +1,16 @@
 import { PrismaClient } from "@/generated/prisma";
-import { withAccelerate } from '@prisma/extension-accelerate';
-const globalForPrisma = global as unknown as { 
-    prisma: PrismaClient
-}
+import { withAccelerate } from "@prisma/extension-accelerate";
 
-const prisma = globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate())
+// Create a typed factory for the extended client
+const createPrismaClient = () => new PrismaClient().$extends(withAccelerate());
+type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+const globalForPrisma = globalThis as unknown as {
+    prisma?: ExtendedPrismaClient;
+};
 
-export default prisma
+const prisma: ExtendedPrismaClient = globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export default prisma;
